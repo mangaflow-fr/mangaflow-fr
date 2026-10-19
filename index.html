@@ -104,34 +104,62 @@ $("images").onchange = e => {
   $("status").textContent = files.length
     ? files.length + " page(s) prête(s)." : "Aucune page choisie.";
 };
-
-async function translate(text) {
+async function translate(text, ocrLanguage) {
   const endpoint = $("api").value.trim();
   const url = new URL(endpoint);
+
   if (url.protocol !== "https:") {
     throw Error("Utilise une API HTTPS.");
   }
 
+  const languageMap = {
+    eng: "en",
+    kor: "ko",
+    chi_sim: "zh"
+  };
+
+  const sourceLanguage = languageMap[ocrLanguage];
+
   const body = {
     q: text,
-    source: "auto",
+    source: sourceLanguage,
     target: "fr",
     format: "text"
   };
-  if ($("key").value.trim()) body.api_key = $("key").value.trim();
+
+  const key = $("key").value.trim();
+  if (key) body.api_key = key;
 
   const response = await fetch(url.href, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
-  if (!response.ok) throw Error(
-    "API de traduction : erreur HTTP " + response.status
-  );
-  const data = await response.json();
-  if (!data.translatedText) throw Error("Réponse de traduction invalide.");
+
+  const responseText = await response.text();
+  let data;
+
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    data = { error: responseText };
+  }
+
+  if (!response.ok) {
+    throw Error(
+      "HTTP " + response.status + " : " +
+      (data.error || responseText || "Erreur API inconnue")
+    );
+  }
+
+  if (!data.translatedText) {
+    throw Error("Réponse de traduction invalide.");
+  }
+
   return data.translatedText;
 }
+
+
 
 $("run").onclick = async () => {
   if (!files.length) {
