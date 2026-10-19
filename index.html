@@ -3,148 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MangaFlow FR</title>
+<title>MangaFlow FR — Traduction</title>
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; padding: 20px;
-    background: #10121a; color: #f4f4f8;
-    font: 16px system-ui, sans-serif;
-  }
-  main { max-width: 650px; margin: auto; }
-  h1 { color: #a78bfa; }
-  input, button, textarea, select {
-    width: 100%; padding: 13px; margin: 7px 0;
-    border-radius: 10px; border: 1px solid #414457;
-    background: #202332; color: white; font: inherit;
-  }
-  button { background: #7c3aed; border: 0; font-weight: 700; cursor: pointer; }
-  button:disabled { opacity: .5; cursor: wait; }
-  .panel { background: #191c28; padding: 15px; border-radius: 14px; margin: 16px 0; }
-  #status { color: #c4b5fd; white-space: pre-wrap; }
-  #result { white-space: pre-wrap; line-height: 1.7; overflow-wrap: anywhere; }
-  img { max-width: 100%; max-height: 360px; object-fit: contain; border-radius: 8px; margin: 5px 0; }
-  small { color: #b9bdcc; }
-  label { display: block; margin-top: 10px; }
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:#10121a;color:#f4f4f8;font:16px system-ui,sans-serif}
+main{max-width:760px;margin:auto}
+h1{color:#a78bfa}
+.panel{background:#191c28;padding:16px;border-radius:14px;margin:16px 0}
+label{display:block;margin:12px 0 5px;color:#ddd6fe}
+input,button,textarea,select{width:100%;padding:12px;margin:5px 0;border-radius:10px;border:1px solid #414457;background:#202332;color:white;font:inherit}
+textarea{min-height:220px;line-height:1.55;resize:vertical}
+button{background:#7c3aed;border:0;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.55}
+small{color:#b9bdcc}
+#status{color:#c4b5fd;white-space:pre-wrap;overflow-wrap:anywhere}
+#result{min-height:140px;white-space:pre-wrap;line-height:1.7;overflow-wrap:anywhere}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){body{padding:12px}.row{grid-template-columns:1fr;gap:0}}
 </style>
 </head>
 <body>
 <main>
-  <h1>📚 MangaFlow FR</h1>
-  <p>Ton laboratoire de traduction de manhwa.</p>
+<h1>📚 MangaFlow FR</h1>
+<p>Version de test : colle un texte ou importe un fichier .txt pour le traduire.</p>
 
-  <section class="panel">
-    <h3>1. Chapitre</h3>
-    <input id="chapterUrl" type="url" placeholder="https://site-exemple.com/chapitre-1">
-    <button id="openUrl" type="button">Ouvrir le chapitre source</button>
-    <small>Ouvre le chapitre dans un nouvel onglet. Les images doivent être importées manuellement ci-dessous.</small>
-  </section>
+<section class="panel">
+<h3>1. Texte à traduire</h3>
+<label for="textFile">Importer un fichier texte (.txt)</label>
+<input id="textFile" type="file" accept=".txt,text/plain">
+<label for="sourceText">Ou colle ton texte ici</label>
+<textarea id="sourceText" placeholder="Colle ici le texte à traduire…"></textarea>
+<small id="charCount">0 caractère</small>
+</section>
 
-  <section class="panel">
-    <h3>2. Importer les pages</h3>
-    <input id="images" type="file" accept="image/png,image/jpeg,image/webp" multiple>
-    <div id="previews"></div>
-  </section>
+<section class="panel">
+<h3>2. Paramètres</h3>
+<label for="api">Adresse de l'API LibreTranslate</label>
+<input id="api" type="url" value="https://libretranslate.com/translate">
+<label for="key">Clé API (si nécessaire)</label>
+<input id="key" type="password" placeholder="Laisse vide si tu n'as pas de clé">
+<div class="row">
+<div>
+<label for="lang">Langue originale</label>
+<select id="lang">
+<option value="en">Anglais</option>
+<option value="ko">Coréen</option>
+<option value="zh">Chinois</option>
+<option value="auto">Détection automatique</option>
+</select>
+</div>
+<div>
+<label for="target">Langue de destination</label>
+<select id="target">
+<option value="fr">Français</option>
+<option value="en">Anglais</option>
+<option value="es">Espagnol</option>
+</select>
+</div>
+</div>
+<button id="run" type="button">Traduire le texte</button>
+<p id="status" role="status" aria-live="polite">Prêt. Aucun texte envoyé.</p>
+</section>
 
-  <section class="panel">
-    <h3>3. Traduction</h3>
-    <label for="api">Adresse de l'API LibreTranslate</label>
-    <input id="api" type="url" value="https://libretranslate.com/translate" autocomplete="url">
-    <label for="key">Clé API (si nécessaire)</label>
-    <input id="key" type="password" placeholder="Laisse vide si non nécessaire" autocomplete="off">
-    <label for="lang">Langue du texte original</label>
-    <select id="lang">
-      <option value="eng">Anglais</option>
-      <option value="kor">Coréen</option>
-      <option value="chi_sim">Chinois simplifié</option>
-    </select>
-    <button id="run" type="button">Reconnaître et traduire</button>
-    <p id="status" role="status" aria-live="polite">En attente de pages.</p>
-  </section>
-
-  <section class="panel">
-    <h3>4. Résultat français</h3>
-    <div id="result">La traduction apparaîtra ici.</div>
-  </section>
+<section class="panel">
+<h3>3. Résultat</h3>
+<div id="result">La traduction apparaîtra ici.</div>
+<button id="copy" type="button">Copier la traduction</button>
+</section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 "use strict";
-
 const $ = id => document.getElementById(id);
-let files = [];
-let previewUrls = [];
 
-$("openUrl").addEventListener("click", () => {
-  const raw = $("chapterUrl").value.trim();
+$("textFile").addEventListener("change", async () => {
+  const file = $("textFile").files[0];
+  if (!file) return;
   try {
-    const u = new URL(raw);
-    if (!["http:", "https:"].includes(u.protocol)) throw new Error();
-    window.open(u.href, "_blank", "noopener,noreferrer");
+    $("sourceText").value = await file.text();
+    updateCount();
+    $("status").textContent = "Fichier chargé : " + file.name;
   } catch {
-    $("status").textContent = "Entre une URL HTTP ou HTTPS valide.";
+    $("status").textContent = "Impossible de lire ce fichier. Essaie un fichier .txt.";
   }
 });
 
-$("images").addEventListener("change", event => {
-  previewUrls.forEach(url => URL.revokeObjectURL(url));
-  previewUrls = [];
-  files = Array.from(event.target.files || []);
-  $("previews").replaceChildren();
+function updateCount() {
+  const n = $("sourceText").value.length;
+  $("charCount").textContent = n.toLocaleString("fr-FR") +
+    (n > 1 ? " caractères" : " caractère");
+}
+$("sourceText").addEventListener("input", updateCount);
 
-  files.forEach(file => {
-    if (!file.type.startsWith("image/")) return;
-    const img = document.createElement("img");
-    const url = URL.createObjectURL(file);
-    previewUrls.push(url);
-    img.src = url;
-    img.alt = file.name;
-    img.loading = "lazy";
-    $("previews").append(img);
-  });
+function splitText(text, maxLength = 1200) {
+  const chunks = [];
+  let remaining = text.trim();
+  while (remaining.length > maxLength) {
+    let cut = remaining.lastIndexOf("\n", maxLength);
+    if (cut < maxLength * 0.5) cut = remaining.lastIndexOf(" ", maxLength);
+    if (cut < maxLength * 0.5) cut = maxLength;
+    chunks.push(remaining.slice(0, cut).trim());
+    remaining = remaining.slice(cut).trim();
+  }
+  if (remaining) chunks.push(remaining);
+  return chunks;
+}
 
-  $("status").textContent = files.length
-    ? files.length + " page(s) prête(s)." : "Aucune page choisie.";
-});
-
-function getApiUrl() {
-  const endpoint = $("api").value.trim();
-  if (!endpoint) throw new Error("Entre l'adresse de l'API de traduction.");
-
+async function translateChunk(text) {
   let url;
   try {
-    url = new URL(endpoint);
+    url = new URL($("api").value.trim());
   } catch {
     throw new Error("L'adresse de l'API est invalide.");
   }
-
   if (url.protocol !== "https:") {
-    throw new Error("Utilise une API HTTPS.");
-  }
-  return url;
-}
-
-async function translate(text, ocrLanguage) {
-  const url = getApiUrl();
-
-  const languageMap = {
-    eng: "en",
-    kor: "ko",
-    chi_sim: "zh"
-  };
-  const sourceLanguage = languageMap[ocrLanguage];
-  if (!sourceLanguage) {
-    throw new Error("Langue source non prise en charge.");
+    throw new Error("Utilise une adresse HTTPS.");
   }
 
   const body = {
     q: text,
-    source: sourceLanguage,
-    target: "fr",
+    source: $("lang").value,
+    target: $("target").value,
     format: "text"
   };
-
   const key = $("key").value.trim();
   if (key) body.api_key = key;
 
@@ -152,147 +133,37 @@ async function translate(text, ocrLanguage) {
   try {
     response = await fetch(url.href, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(body)
     });
   } catch {
-    throw new Error("Impossible de joindre l'API. Vérifie la connexion, l'adresse et les restrictions CORS du serveur.");
+    throw new Error("Connexion impossible. Vérifie Internet, l'adresse de l'API ou ses autorisations CORS.");
   }
 
-  const responseText = await response.text();
+  const raw = await response.text();
   let data;
   try {
-    data = JSON.parse(responseText);
+    data = JSON.parse(raw);
   } catch {
-    data = { error: responseText };
+    data = {error: raw};
   }
 
   if (!response.ok) {
-    const detail = typeof data.error === "string"
-      ? data.error
-      : (responseText || "Erreur API inconnue");
-    throw new Error("HTTP " + response.status + " : " + detail);
+    const detail = typeof data.error === "string" ? data.error : raw;
+    throw new Error("Erreur HTTP " + response.status + " : " +
+      (detail || "le serveur a refusé la requête."));
   }
-
-  if (typeof data.translatedText !== "string" || !data.translatedText.trim()) {
-    throw new Error("Réponse de traduction invalide. Vérifie que l'URL pointe vers un endpoint compatible LibreTranslate.");
+  if (typeof data.translatedText !== "string") {
+    throw new Error("Réponse inattendue : la traduction est absente.");
   }
-
   return data.translatedText;
 }
 
-function splitText(text, maxLength = 1000) {
-  const paragraphs = text.split(/\n+/).map(s => s.trim()).filter(Boolean);
-  const chunks = [];
-
-  for (const paragraph of paragraphs) {
-    if (paragraph.length <= maxLength) {
-      chunks.push(paragraph);
-      continue;
-    }
-
-    // Découpe de préférence aux espaces, sans perdre les caractères.
-    let remaining = paragraph;
-    while (remaining.length > maxLength) {
-      let cut = remaining.lastIndexOf(" ", maxLength);
-      if (cut < Math.floor(maxLength * 0.5)) cut = maxLength;
-      chunks.push(remaining.slice(0, cut).trim());
-      remaining = remaining.slice(cut).trim();
-    }
-    if (remaining) chunks.push(remaining);
-  }
-
-  return chunks;
-}
-
 $("run").addEventListener("click", async () => {
-  if (!files.length) {
-    $("status").textContent = "Importe d'abord une ou plusieurs images.";
-    return;
-  }
-  if (!window.Tesseract) {
-    $("status").textContent = "Tesseract.js n'a pas pu se charger. Vérifie ta connexion.";
+  const text = $("sourceText").value.trim();
+  if (!text) {
+    $("status").textContent = "Colle d'abord un texte à traduire.";
     return;
   }
 
-  $("run").disabled = true;
-  $("result").textContent = "";
-  const allResults = [];
-  let worker = null;
-
-  try {
-    const language = $("lang").value;
-    $("status").textContent = "Chargement du moteur OCR…";
-
-    worker = await Tesseract.createWorker(language, 1, {
-      logger: message => {
-        if (message.status) {
-          $("status").textContent = message.status +
-            (message.progress != null
-              ? " : " + Math.round(message.progress * 100) + "%"
-              : "");
-        }
-      }
-    });
-
-    for (let i = 0; i < files.length; i++) {
-      $("status").textContent = "Lecture de la page " + (i + 1) + "/" + files.length + "…";
-
-      const imageUrl = URL.createObjectURL(files[i]);
-let data;
-
-try {
-  const image = new Image();
-  image.src = imageUrl;
-
-  await image.decode();
-
-  ({ data } = await worker.recognize(image));
-} finally {
-  URL.revokeObjectURL(imageUrl);
-}
-      const text = (data.text || "").trim();
-
-      if (!text) {
-        allResults.push("PAGE " + (i + 1) + "\nAucun texte reconnu.");
-        $("result").textContent = allResults.join("\n\n");
-        continue;
-      }
-
-      const chunks = splitText(text);
-      const translated = [];
-
-      for (let j = 0; j < chunks.length; j++) {
-        $("status").textContent =
-          "Traduction de la page " + (i + 1) + "/" + files.length +
-          " : segment " + (j + 1) + "/" + chunks.length + "…";
-        translated.push(await translate(chunks[j], language));
-      }
-
-      allResults.push("PAGE " + (i + 1) + "\n" + translated.join("\n\n"));
-      $("result").textContent = allResults.join("\n\n");
-    }
-
-    $("status").textContent = "Traitement terminé.";
-  } catch (error) {
-    $("status").textContent = "Erreur : " +
-      (error && error.message ? error.message : String(error)) +
-      "\nVérifie la connexion, la langue OCR et la configuration de l'API.";
-  } finally {
-    if (worker) {
-      try {
-        await worker.terminate();
-      } catch (cleanupError) {
-        // Le traitement principal est terminé; une erreur de nettoyage ne doit pas masquer le résultat.
-      }
-    }
-    $("run").disabled = false;
-  }
-});
-
-window.addEventListener("beforeunload", () => {
-  previewUrls.forEach(url => URL.revokeObjectURL(url));
-});
-</script>
-</body>
-</html>
+  $("run").disabled =
