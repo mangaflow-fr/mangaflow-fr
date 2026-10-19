@@ -94,6 +94,7 @@ function updateCount() {
     (n > 1 ? " caractères" : " caractère");
 }
 $("sourceText").addEventListener("input", updateCount);
+updateCount();
 
 function splitText(text, maxLength = 1200) {
   const chunks = [];
